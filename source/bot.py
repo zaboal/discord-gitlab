@@ -3,6 +3,10 @@ import gitlab
 
 gl = gitlab.Gitlab(url='https://gitlab.megu.one', private_token='glpat-FsbtfebnSiw1SJ8foYpu')
 
+project = gl.projects.get(13)
+
+print(type(gl.issues.list()))
+
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -14,7 +18,7 @@ async def on_message(message):
         return
 
     if message.content.startswith('/issue'):
-        await message.channel.send(3 + 6)
+        project.issues.create({'title': message.content.replace("/issue",""),'description': 'Something useful here.'})
 
 
-client.run("MTA5MjQ3ODUzMTIyNjgzNjk5NA.GKB56y.LpYtwlRcUX6R2ZWe_HAZp6bAEUEBYDfMbHmX3A")
+client.run("MTA5MjQ3ODUzMTIyNjgzNjk5NA.Gbro_i.C9kbltoL-dCEpNC8e23WHPWnUd5BPaSE4TmWGQ")
