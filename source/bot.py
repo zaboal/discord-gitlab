@@ -1,24 +1,35 @@
+from os import environ # для получения переменных окружения
 import discord
+from discord.ext import commands # поддержка красивых команд
 import gitlab
 
-gl = gitlab.Gitlab(url='https://gitlab.megu.one', private_token='glpat-FsbtfebnSiw1SJ8foYpu')
+
+
+
+gl = gitlab.Gitlab(url = 'https://gitlab.megu.one',
+	private_token = environ.get("TOKEN_GITLAB"))
 
 project = gl.projects.get(13)
 
-print(type(gl.issues.list()))
+
 
 intents = discord.Intents.default()
 intents.message_content = True
 
-client = discord.Client(intents=intents)
+discord_bot = discord.Client(intents=intents)
 
-@client.event
+
+
+    
+@discord_bot.event
 async def on_message(message):
-    if message.author == client.user:
-        return
+	if message.author == discord_bot.user:
+		return
 
-    if message.content.startswith('/issue'):
-        project.issues.create({'title': message.content.replace("/issue",""),'description': 'Something useful here.'})
+	issue_text = message.content.replace("/issue ","") # Получение текста команды «issue»
 
+	if message.content.startswith('/issue'): # Создание на базе этого задачи на ГитЛабе и отчёт об этом в канал
+		if project.issues.create({'title': issue_text,'description': 'Something useful here.'}):
+			await message.channel.send("Задача «" + issue_text + "» создана.")
 
-client.run("MTA5MjQ3ODUzMTIyNjgzNjk5NA.Gbro_i.C9kbltoL-dCEpNC8e23WHPWnUd5BPaSE4TmWGQ")
+discord_bot.run(environ.get("TOKEN_DISCORD"))
