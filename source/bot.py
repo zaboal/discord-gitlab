@@ -2,8 +2,13 @@ from os import environ # для получения переменных окру
 import discord
 from discord.ext import commands # поддержка красивых команд
 import gitlab # прикол
+import csv # база данных
+from os import remove
 
+database = open("database.csv", "w")
+database.close()
 
+slovar = dict()
 
 
 gl = gitlab.Gitlab(url = 'https://gitlab.megu.one',
@@ -32,6 +37,17 @@ async def on_message(message):
 		if project.issues.create({'title': issue_text,'description': 'Something useful here.'}):
 			await message.channel.send("Задача «" + issue_text + "» создана.")
 	
+	#if message.content.startswith('/project'):
+		#slovar.update({message.channel.id: message.content.replace("/project ","")})
+		#await message.channel.send(slovar)
+
+	if message.content.startswith('/project'):
+		database = open("database.csv", "a+")
+		database.write(str({message.channel.id: message.content.replace("/project ","")}) + "\n")
+		database.close()
+	
+	if message.content.startswith('/remove'):
+		remove("database.csv")
 
 #command_issue_extras = dict()
 #@tree_commands.command(name="issue", description="создать задачу на GitLab", nsfw=False, auto_locale_strings=False)
@@ -40,13 +56,6 @@ async def on_message(message):
 
 #add_command(*command_issue, guild=None, guilds=None, override=True)
 #asyncio.run(sync(*command_issue, guild=None))
-
-
-
-
-
-
-
 
 
 discord_bot.run(environ.get("TOKEN_DISCORD"))
