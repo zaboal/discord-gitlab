@@ -32,4 +32,9 @@ async def on_message(message):
 		if project.issues.create({'title': issue_text,'description': 'Something useful here.'}):
 			await message.channel.send("Задача «" + issue_text + "» создана.")
 
+command_issue = discord.app_commands.command(name="issue", description="создать задачу на GitLab", nsfw=False, auto_locale_strings=False)
+
+add_command(command_issue, *, guild=None, guilds=None, override=True)
+await sync(*, guild=None)
+
 discord_bot.run(environ.get("TOKEN_DISCORD"))
