@@ -1,9 +1,16 @@
-from os import environ # для получения переменных окружения
-import discord
-from discord.ext import commands # поддержка красивых команд
-import gitlab # прикол
-import csv # база данных
-from os import remove
+'''	Интеграция Дискорда и ГитЛаба
+🄯	Стешенко Артём и Зажигин Богдан '''
+
+'''	Справочные материалы на английском для разработки
+Язык Пайтон —	https://docs.python.org/3.12/reference
+АПИ Дискорда —	https://discordpy.readthedocs.io/en/latest
+АПИ ГитЛаба —	https://python-gitlab.readthedocs.io/en/latest
+'''
+
+
+from os import environ, remove # получение переменных среды и удаление файлов
+import discord, gitlab # работа с АПИ Дискорда и ГитЛаба
+import csv # запись и чтение табличной базы данных, https://ru.wikipedia.org/wiki/CSV
 
 database = open("database.csv", "w")
 database.close()
@@ -11,11 +18,13 @@ database.close()
 slovar = dict()
 
 
-gl = gitlab.Gitlab(url = 'https://gitlab.megu.one',
-	private_token = environ.get("TOKEN_GITLAB"))
+gitlab_instance = gitlab.Gitlab(
+	url = 'https://gitlab.megu.one', 
+	private_token = environ.get("TOKEN_GITLAB")
+)
 
-project = gl.projects.get(13)
-# надо чтобы id проекта привязался к id канала
+project = gitlab_instance.projects.get(13) # TODO: надо чтобы id проекта привязался к id канала
+
 
 
 intents = discord.Intents.default()
@@ -27,8 +36,8 @@ discord_bot = discord.Client(intents=intents) # Объявление о суще
 
     
 @discord_bot.event
-async def on_message(message):
-	if message.author == discord_bot.user:
+async def on_message(message): # обработка каждого сообщения
+	if message.author == discord_bot.user: # самооигнор
 		return
 
 	issue_text = message.content.replace("/issue ","") # Получение текста команды «issue»
