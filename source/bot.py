@@ -1,7 +1,7 @@
 from os import environ # для получения переменных окружения
 import discord
 from discord.ext import commands # поддержка красивых команд
-import gitlab
+import gitlab # прикол
 
 
 
