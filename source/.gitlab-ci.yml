@@ -1,6 +1,0 @@
-image: python:slim
-
-install_run:
-  script:
-    - pip install -r discord-gitalb_bot/requirements.txt
-    - python discord-gitalb_bot/discord-gitalb_bot.py
