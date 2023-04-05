@@ -1,32 +1,32 @@
-'''	Интеграция Дискорда и ГитЛаба
-🄯	Стешенко Артём и Зажигин Богдан '''
+#	Интеграция Дискорда и ГитЛаба
+#🄯	Стешенко Артём и Зажигин Богдан
 
 from os import environ, remove
-	''' Получение переменных среды и удаление файлов —
-		https://docs.python.org/3.12/library/os.html '''
+	# Получение переменных среды и удаление файлов —
+		#https://docs.python.org/3.12/library/os.html
 import msgpack
-	''' Бинарная сериализация, создание машинной базы данных —
-		https://github.com/msgpack/msgpack-python/blob/main/README.md '''
+	# Бинарная сериализация, создание машинной базы данных —
+		#https://github.com/msgpack/msgpack-python/blob/main/README.md
 import gitlab, discord 
-	''' Обертка АПИ ГитЛаба — https://python-gitlab.readthedocs.io/en/latest и
-		АПИ Дискорда — https://discordpy.readthedocs.io/en/latest '''
+	# Обертка АПИ ГитЛаба — https://python-gitlab.readthedocs.io/en/latest и
+		#АПИ Дискорда — https://discordpy.readthedocs.io/en/latest
 
 
 database = open("database.csv", "w") # создать базу данных если её нет
 database.close() # закрыть базу данных
-	''' FIXME: Запись базы данных с помощью MessagePack, а не простого
-		манипулирования файлами, из них нельзя получить значения. '''
+	# FIXME: Запись базы данных с помощью MessagePack, а не простого
+		#манипулирования файлами, из них нельзя получить значения.
 
 
 gitlab_instance = gitlab.Gitlab(url = 'https://gitlab.megu.one', private_token = environ.get("TOKEN_GITLAB")) # определение адреса и токена экземляра ГитЛаба
 project = gitlab_instance.projects.get(13) # определение проекта в котором нужно создавать задачи
-	''' TODO: Привязка экзепмляра и проекта к Дискорд Каналу в БД, а не в коде '''
+	# TODO: Привязка экзепмляра и проекта к Дискорд Каналу в БД, а не в коде
 
 
 intents = discord.Intents.default() # использовать требования по умолчанию
 intents.message_content = True # требовать содержимое сообщений
-	''' Определение событий требуемых для функционирования бота, например,
-		«пользователь печатает» можно игнорировать, а отправленное сообщение нужно получить '''
+	# Определение событий требуемых для функционирования бота, например,
+		#«пользователь печатает» можно игнорировать, а отправленное сообщение нужно получить
 
 discord_bot = discord.Client(intents=intents) # определение конфигурации бота
 
@@ -54,18 +54,17 @@ async def on_message(message): # обработка каждого сообще�
 discord_bot.run(environ.get("TOKEN_DISCORD")) # авторизация бота по токену из среды и запуск 
 
 
-'''	TODO: Регистрировать команды бота в Команды Приложения —
-	https://discordpy.readthedocs.io/en/latest/interactions/api.html#application-commands:
+	#TODO: Регистрировать команды бота в Команды Приложения —
+	#https://discordpy.readthedocs.io/en/latest/interactions/api.html#application-commands:
 
-tree_commands = discord.app_commands.CommandTree(discord_bot) # Объявление дерева команд бота
-	if message.content.startswith('/project'):
-		slovar.update({message.channel.id: message.content.replace("/project ","")})
-		await message.channel.send(slovar)
-slovar = dict()
-command_issue_extras = dict()
-@tree_commands.command(name="issue", description="создать задачу на GitLab", nsfw=False, auto_locale_strings=False)
- async def issue(interaction):
-	await interaction.response.send_message(f"Pong", ephemeral=True)
-add_command(*command_issue, guild=None, guilds=None, override=True)
-asyncio.run(sync(*command_issue, guild=None))
-'''
+#tree_commands = discord.app_commands.CommandTree(discord_bot) # Объявление дерева команд бота
+#	if message.content.startswith('/project'):
+#		slovar.update({message.channel.id: message.content.replace("/project ","")})
+#		await message.channel.send(slovar)
+#slovar = dict()
+#command_issue_extras = dict()
+#@tree_commands.command(name="issue", description="создать задачу на GitLab", nsfw=False, auto_locale_strings=False)
+#async def issue(interaction):
+#	await interaction.response.send_message(f"Pong", ephemeral=True)
+#add_command(*command_issue, guild=None, guilds=None, override=True)
+#asyncio.run(sync(*command_issue, guild=None))
