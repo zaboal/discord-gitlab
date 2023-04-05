@@ -12,10 +12,11 @@ import gitlab, discord
 		#АПИ Дискорда — https://discordpy.readthedocs.io/en/latest
 
 
-database = open("database.msgpack", "w") # создать базу данных если её нет
-'''database_spisok = msgpack.unpackb(database.read())'''
-	if (database.read() != None):
-		database_spisok = msgpack.unpackb(database.read())
+database = open("database.msgpack", "a+") # создать базу данных если её нет
+
+if database.read(): # декодирует базу данных если она есть
+	database_spisok = msgpack.unpackb(database.read())
+
 
 gitlab_instance = gitlab.Gitlab(url = 'https://gitlab.megu.one', private_token = environ.get("TOKEN_GITLAB")) # определение адреса и токена экземляра ГитЛаба
 project = gitlab_instance.projects.get(13) # определение проекта в котором нужно создавать задачи
