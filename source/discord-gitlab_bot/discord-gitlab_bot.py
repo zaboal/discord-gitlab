@@ -12,8 +12,10 @@ import gitlab, discord
 		АПИ Дискорда — https://discordpy.readthedocs.io/en/latest '''
 
 
-database = open("database.csv", "w")
-database.close()
+database = open("database.csv", "w") # создать базу данных если её нет
+database.close() # закрыть базу данных
+	''' FIXME: Запись базы данных с помощью MessagePack, а не простого
+		манипулирования файлами, из них нельзя получить значения. '''
 
 
 gitlab_instance = gitlab.Gitlab(url = 'https://gitlab.megu.one', private_token = environ.get("TOKEN_GITLAB")) # определение адреса и токена экземляра ГитЛаба
@@ -36,9 +38,8 @@ async def on_message(message): # обработка каждого сообще�
 		return
 
 	issue_text = message.content.replace("/issue ","") # получение текста команды «issue»
-
-	if message.content.startswith('/issue'): # создание на базе этого задачи на ГитЛабе и отчёт об этом в канал
-		if project.issues.create({'title': issue_text,'description': 'Something useful here.'}):
+	if message.content.startswith('/issue'): # команда создания задачи на ГитЛабе
+		if project.issues.create({'title': issue_text}):
 			await message.channel.send("Задача «" + issue_text + "» создана.")
 
 	if message.content.startswith('/project'):
@@ -46,11 +47,11 @@ async def on_message(message): # обработка каждого сообще�
 		database.write(str({message.channel.id: message.content.replace("/project ","")}) + "\n")
 		database.close()
 	
-	if message.content.startswith('/remove'):
+	if message.content.startswith('/remove'): # команда удаления базы данных
 		remove("database.csv")
 
 
-discord_bot.run(environ.get("TOKEN_DISCORD"))
+discord_bot.run(environ.get("TOKEN_DISCORD")) # авторизация бота по токену из среды и запуск 
 
 
 '''	TODO: Регистрировать команды бота в Команды Приложения —
