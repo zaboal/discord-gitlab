@@ -12,11 +12,10 @@ import gitlab, discord
 		#АПИ Дискорда — https://discordpy.readthedocs.io/en/latest
 
 
-database = open("database.csv", "w") # создать базу данных если её нет
-database.close() # закрыть базу данных
-	# FIXME: Запись базы данных с помощью MessagePack, а не простого
-		#манипулирования файлами, из них нельзя получить значения.
-
+database = open("database.msgpack", "w") # создать базу данных если её нет
+'''database_spisok = msgpack.unpackb(database.read())'''
+	if (database.read() != None):
+		database_spisok = msgpack.unpackb(database.read())
 
 gitlab_instance = gitlab.Gitlab(url = 'https://gitlab.megu.one', private_token = environ.get("TOKEN_GITLAB")) # определение адреса и токена экземляра ГитЛаба
 project = gitlab_instance.projects.get(13) # определение проекта в котором нужно создавать задачи
@@ -43,12 +42,13 @@ async def on_message(message): # обработка каждого сообще�
 			await message.channel.send("Задача «" + issue_text + "» создана.")
 
 	if message.content.startswith('/project'):
-		database = open("database.csv", "a+")
-		database.write(str({message.channel.id: message.content.replace("/project ","")}) + "\n")
-		database.close()
+		database_spisok[int(message.channel.id)] = int(message.content.replace("/project ",""))
 	
 	if message.content.startswith('/remove'): # команда удаления базы данных
-		remove("database.csv")
+		remove("database.msgpack")
+
+	if message.content.startswith('/show'):
+		await message.channel.send(database_spisok.get(int(message.channel.id)))
 
 
 discord_bot.run(environ.get("TOKEN_DISCORD")) # авторизация бота по токену из среды и запуск 
@@ -57,14 +57,32 @@ discord_bot.run(environ.get("TOKEN_DISCORD")) # авторизация бота 
 	#TODO: Регистрировать команды бота в Команды Приложения —
 	#https://discordpy.readthedocs.io/en/latest/interactions/api.html#application-commands:
 
-#tree_commands = discord.app_commands.CommandTree(discord_bot) # Объявление дерева команд бота
-#	if message.content.startswith('/project'):
-#		slovar.update({message.channel.id: message.content.replace("/project ","")})
-#		await message.channel.send(slovar)
-#slovar = dict()
-#command_issue_extras = dict()
-#@tree_commands.command(name="issue", description="создать задачу на GitLab", nsfw=False, auto_locale_strings=False)
-#async def issue(interaction):
-#	await interaction.response.send_message(f"Pong", ephemeral=True)
-#add_command(*command_issue, guild=None, guilds=None, override=True)
-#asyncio.run(sync(*command_issue, guild=None))
+#=======================================================================
+
+'''tree_commands = discord.app_commands.CommandTree(discord_bot) # Объявление дерева команд бота
+	if message.content.startswith('/project'):
+		slovar.update({message.channel.id: message.content.replace("/project ","")})
+		await message.channel.send(slovar)
+slovar = dict()
+command_issue_extras = dict()
+@tree_commands.command(name="issue", description="создать задачу на GitLab", nsfw=False, auto_locale_strings=False)
+async def issue(interaction):
+	await interaction.response.send_message(f"Pong", ephemeral=True)
+add_command(*command_issue, guild=None, guilds=None, override=True)
+asyncio.run(sync(*command_issue, guild=None))'''
+
+#=======================================================================
+
+'''database_file = open("database.msgpack", "w")
+database = msgpack.unpackb(database_file.read()) # \31123\123123\123132\213
+# {1: a}, {2: b}
+Ctrl+c = SINGal TERMinate
+
+database[3] = "c"
+# {1: a}, {2: b}, {3, c}
+
+# /save
+database_file.write(
+    msgpack.packb(database, use_bin_type=True) # \31123\123123\123132\213 + \123123123123
+)
+database_file.close()'''
