@@ -16,6 +16,8 @@ database = open("database.msgpack", "a+") # создать базу данных
 
 if database.read(): # декодирует базу данных если она есть
 	database_spisok = msgpack.unpackb(database.read())
+else:
+	database_spisok = dict()
 
 
 gitlab_instance = gitlab.Gitlab(url = 'https://gitlab.megu.one', private_token = environ.get("TOKEN_GITLAB")) # определение адреса и токена экземляра ГитЛаба
@@ -38,17 +40,31 @@ async def on_message(message): # обработка каждого сообще�
 
 	issue_text = message.content.replace("/issue ","") # получение текста команды «issue»
 	if message.content.startswith('/issue'): # команда создания задачи на ГитЛабе
-		if project.issues.create({'title': issue_text}):
-			await message.channel.send("Задача «" + issue_text + "» создана.")
+		if database_spisok.get(int(message.channel.id)):
+			if project.issues.create({'title': issue_text}):
+				await message.channel.send("Задача «" + issue_text + "» создана успешно, ^w^")
+			else:
+				await message.channel.send("не получилось, QwQ")
+		else:
+			await message.channel.send("данных нет, введите пожалуйста id для подключения через /project (id проекта), ^w^")
 
 	if message.content.startswith('/project'):
 		database_spisok[int(message.channel.id)] = int(message.content.replace("/project ",""))
+		await message.channel.send("данные сохранены... надеюсь OwO")
 	
 	if message.content.startswith('/remove'): # команда удаления базы данных
 		remove("database.msgpack")
+		await message.channel.send("данные удалены ^w^ (наверно OwO)")
 
 	if message.content.startswith('/show'):
-		await message.channel.send(database_spisok.get(int(message.channel.id)))
+		if database_spisok.get(int(message.channel.id)):
+			await message.channel.send(database_spisok.get(int(message.channel.id)))
+		else:
+			await message.channel.send("данных нет, введите id для подключения через /project (id проекта), ^w^")
+	
+	if message.content.startswith('/speak'):
+		await message.channel.send("я бот для создания проектов на gitlab через дискорд созданный Артёмом (ака: TheRandomFurryGuy) и Богданом богом данным (ака: Zaboal) | [идея сделать меня фурри была предложена 1-м ради шутки]")
+		await message.channel.send("список комманд которые я выполняю:\n/issue - создание задачи на gitlab\n/project - подключение id канала discord с id канала gitlab\n/remove - удаление id\n/show - показ id (к каждому каналу discord подключён отдельный id gitlab)\n/speak - я расскажу немного о себе (что сейчас и делаю)")
 
 
 discord_bot.run(environ.get("TOKEN_DISCORD")) # авторизация бота по токену из среды и запуск 
