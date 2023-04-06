@@ -1,0 +1,2 @@
+$Env:TOKEN_DISCORD = "MTA5MjQ3ODUzMTIyNjgzNjk5NA.GehM0L.m2UnjBSkN9os4j5WTR2fpzND3RkmpgBTa6W5wk"
+$Env:TOKEN_GITLAB = "glpat-M-BrswQUyadRy1jEr-yW"
