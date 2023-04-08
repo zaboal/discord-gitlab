@@ -31,50 +31,51 @@ intents.message_content = True # требовать содержимое соо�
 	# Определение событий требуемых для функционирования бота, например, «пользователь печатает» можно игнорировать, а отправленное сообщение нужно получить
 
 discord_bot = discord.Client(intents=intents) # определение конфигурации бота
-
-
     
 @discord_bot.event
 async def on_message(message): # обработка каждого сообщения
+	command = message.content.startswith
+	reply = message.channel.send
+
 	if message.author == discord_bot.user: # самооигнор
 		return
 
 	issue_text = message.content.replace("/issue ","") # получение текста команды «issue»
-	if message.content.startswith('/issue'): # команда создания задачи на ГитЛабе
+	if command('/issue'): # команда создания задачи на ГитЛабе
 		if database_spisok.get(int(message.channel.id)):
 			if project.issues.create({'title': issue_text}):
-				await message.channel.send("Задача «" + issue_text + "» создана успешно, ^w^")
+				await reply("Задача «" + issue_text + "» создана успешно, ^w^")
 			else:
-				await message.channel.send("не получилось, QwQ")
+				await reply("не получилось, QwQ")
 		else:
-			await message.channel.send("данных нет, введите пожалуйста id для подключения через /project (id проекта), ^w^")
+			await reply("данных нет, введите пожалуйста id для подключения через /project (id проекта), ^w^")
 
-	if message.content.startswith('/project'):
+	if command('/project'):
 		try:
 			database_spisok[int(message.channel.id)] = int(message.content.replace("/project ",""))
-			await message.channel.send("данные сохранены ^w^")
+			await reply("данные сохранены ^w^")
 		except:
-			await message.channel.send("не удалось сохранить id")
+			await reply("не удалось сохранить id")
 	
-	if message.content.startswith('/remove'): # команда удаления базы данных
+	if command('/remove'): # команда удаления базы данных
 		try:
 			remove("database.msgpack")
-			await message.channel.send("данные удалены ^w^")
+			await reply("данные удалены ^w^")
 		except:
-			await message.channel.send("не удалось удалить файлы")
+			await reply("не удалось удалить файлы")
 
-	if message.content.startswith('/show'):
+	if command('/show'):
 		if database_spisok.get(int(message.channel.id)):
-			await message.channel.send(database_spisok.get(int(message.channel.id)))
+			await reply(database_spisok.get(int(message.channel.id)))
 		else:
-			await message.channel.send("данных нет, введите id для подключения через /project (id проекта), ^w^")
+			await reply("данных нет, введите id для подключения через /project (id проекта), ^w^")
 	
-	if message.content.startswith('/speak'):
-		await message.channel.send("я бот для создания проектов на gitlab через дискорд созданный Артёмом (ака: TheRandomFurryGuy) и Богданом богом данным (ака: Zaboal) | [идея сделать меня фурри была предложена 1-м ради шутки]")
-		await message.channel.send("====================================")
-		await message.channel.send("список комманд которые я выполняю:\n/issue - создание задачи на gitlab\n/project - подключение id канала discord с id канала gitlab\n/remove - удаление id\n/show - показ id (к каждому каналу discord подключён отдельный id gitlab)\n/speak - я расскажу немного о себе (что сейчас и делаю)")
+	if command('/speak'):
+		await reply("я бот для создания проектов на gitlab через дискорд созданный Артёмом (ака: TheRandomFurryGuy) и Богданом богом данным (ака: Zaboal) | [идея сделать меня фурри была предложена 1-м ради шутки]")
+		await reply("====================================")
+		await reply("список комманд которые я выполняю:\n/issue - создание задачи на gitlab\n/project - подключение id канала discord с id канала gitlab\n/remove - удаление id\n/show - показ id (к каждому каналу discord подключён отдельный id gitlab)\n/speak - я расскажу немного о себе (что сейчас и делаю)")
 
-	if message.content.startswith('/save'):
+	if command('/save'):
 		database.write(msgpack.packb(database_spisok, use_bin_type = True))
 
 discord_bot.run(environ.get("TOKEN_DISCORD")) # авторизация бота по токену из среды и запуск 
@@ -87,7 +88,7 @@ discord_bot.run(environ.get("TOKEN_DISCORD")) # авторизация бота 
 '''tree_commands = discord.app_commands.CommandTree(discord_bot) # Объявление дерева команд бота
 	if message.content.startswith('/project'):
 		slovar.update({message.channel.id: message.content.replace("/project ","")})
-		await message.channel.send(slovar)
+		await reply(slovar)
 slovar = dict()
 command_issue_extras = dict()
 @tree_commands.command(name="issue", description="создать задачу на GitLab", nsfw=False, auto_locale_strings=False)
