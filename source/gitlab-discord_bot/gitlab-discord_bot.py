@@ -76,7 +76,7 @@ async def on_message(message): # обработка каждого сообще�
 		await reply("список комманд которые я выполняю:\n/issue - создание задачи на gitlab\n/project - подключение id канала discord с id канала gitlab\n/remove - удаление id\n/show - показ id (к каждому каналу discord подключён отдельный id gitlab)\n/speak - я расскажу немного о себе (что сейчас и делаю)")
 
 	if command('/save'):
-		database.write(msgpack.packb(database_spisok, use_bin_type = True))
+		database.write(bytearray(database_spisok))
 
 discord_bot.run(environ.get("TOKEN_DISCORD")) # авторизация бота по токену из среды и запуск 
 
