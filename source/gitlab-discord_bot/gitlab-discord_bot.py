@@ -13,10 +13,11 @@ import gitlab, discord
 
 
 database = open("database.msgpack", "a+") # создать базу данных если её нет
+'''database.close()'''
 
-if database.read(): # декодирует базу данных если она есть
+try: # декодирует базу данных если она есть
 	database_spisok = msgpack.unpackb(database.read())
-else:
+except:
 	database_spisok = dict()
 
 
@@ -49,12 +50,18 @@ async def on_message(message): # обработка каждого сообще�
 			await message.channel.send("данных нет, введите пожалуйста id для подключения через /project (id проекта), ^w^")
 
 	if message.content.startswith('/project'):
-		database_spisok[int(message.channel.id)] = int(message.content.replace("/project ",""))
-		await message.channel.send("данные сохранены... надеюсь OwO")
+		try:
+			database_spisok[int(message.channel.id)] = int(message.content.replace("/project ",""))
+			await message.channel.send("данные сохранены ^w^")
+		except:
+			await message.channel.send("не удалось сохранить id")
 	
 	if message.content.startswith('/remove'): # команда удаления базы данных
-		remove("database.msgpack")
-		await message.channel.send("данные удалены ^w^ (наверно OwO)")
+		try:
+			remove("database.msgpack")
+			await message.channel.send("данные удалены ^w^")
+		except:
+			await message.channel.send("не удалось удалить файлы")
 
 	if message.content.startswith('/show'):
 		if database_spisok.get(int(message.channel.id)):
@@ -67,6 +74,8 @@ async def on_message(message): # обработка каждого сообще�
 		await message.channel.send("====================================")
 		await message.channel.send("список комманд которые я выполняю:\n/issue - создание задачи на gitlab\n/project - подключение id канала discord с id канала gitlab\n/remove - удаление id\n/show - показ id (к каждому каналу discord подключён отдельный id gitlab)\n/speak - я расскажу немного о себе (что сейчас и делаю)")
 
+	if message.content.startswith('/save'):
+		database.write(msgpack.packb(database_spisok, use_bin_type = True))
 
 discord_bot.run(environ.get("TOKEN_DISCORD")) # авторизация бота по токену из среды и запуск 
 
