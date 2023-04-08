@@ -11,14 +11,17 @@ import gitlab, discord
 	# Обертка АПИ ГитЛаба — https://python-gitlab.readthedocs.io/en/latest и
 	# АПИ Дискорда — https://discordpy.readthedocs.io/en/latest
 
-
-database = open("database.msgpack", "a+") # создать базу данных если её нет
-'''database.close()'''
-
-try: # декодирует базу данных если она есть
-	database_spisok = msgpack.unpackb(database.read())
+try:
+	with open("database.msgpack", "rb") as database:
+		database_content = database.read()
+	print(str(database_content))
+	database_spisok = msgpack.unpackb(database_content, strict_map_key=False)
 except:
 	database_spisok = dict()
+
+
+
+
 
 
 gitlab_instance = gitlab.Gitlab(url = 'https://gitlab.megu.one', private_token = environ.get("TOKEN_GITLAB")) # определение адреса и токена экземляра ГитЛаба
@@ -76,7 +79,7 @@ async def on_message(message): # обработка каждого сообще�
 		await reply("список комманд которые я выполняю:\n/issue - создание задачи на gitlab\n/project - подключение id канала discord с id канала gitlab\n/remove - удаление id\n/show - показ id (к каждому каналу discord подключён отдельный id gitlab)\n/speak - я расскажу немного о себе (что сейчас и делаю)")
 
 	if command('/save'):
-		database.write(bytearray(database_spisok))
+		open("database.msgpack", "wb").write(msgpack.packb(database_spisok))
 
 discord_bot.run(environ.get("TOKEN_DISCORD")) # авторизация бота по токену из среды и запуск 
 
