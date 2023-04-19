@@ -35,31 +35,24 @@ async def on_message(message): # обработка каждого сообще�
 		if database_spisok.get(int(message.channel.id)):
 			project = gitlab_instance.projects.get(str(database_spisok.get(int(message.channel.id))))
 			if project.issues.create({'title': issue_text}):
-				await reply("Задача «" + issue_text + "» создана успешно, ^w^")
+				await reply("Задача «`" + issue_text + "`» создана **успешно** ^w^")
 			else:
 				await reply("не получилось, QwQ")
 		else:
-			await reply("данных нет, введите пожалуйста id для подключения через /project (id проекта), ^w^")
+			await reply("Данных нет, введите идентификатор проекта через `/project <ID>` ^w^")
 
 	if command('/project'):
 		try:
 			database_spisok[int(message.channel.id)] = int(message.content.replace("/project ",""))
-			await reply("данные сохранены ^w^")
+			await reply("Данные сохранены ^w^")
 		except:
-			await reply("не удалось сохранить id")
-	
-	if command('/remove'): # команда удаления базы данных
-		try:
-			remove("database.msgpack")
-			await reply("данные удалены ^w^")
-		except:
-			await reply("не удалось удалить файлы")
+			await reply("Не удалось привязать идентификатор проекта к этому каналу")
 
 	if command('/show'):
 		if database_spisok.get(int(message.channel.id)):
 			await reply(database_spisok.get(int(message.channel.id)))
 		else:
-			await reply("данных нет, введите id для подключения через /project (id проекта), ^w^")
+			await reply("Данных нет, введите идентификатор проекта через `/project <ID>` ^w^")
 	
 	if command('/speak'):
 		await reply("я бот для создания проектов на gitlab через дискорд созданный Артёмом (ака: TheRandomFurryGuy) и Богданом богом данным (ака: Zaboal) | [идея сделать меня фурри была предложена 1-м ради шутки]")
